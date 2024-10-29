@@ -15,8 +15,9 @@ Image *load_image(char *filename) {
         return NULL; 
     }
 
-    char header[10];
+    char* header = malloc(10 * sizeof(char));
     fscanf(file, "%s", header);//read header and ignore it
+    free(header);
     fscanf(file, "%d %d", &image->width, &image->height);
     fscanf(file, "%d", &image->max_Intensity);
     
