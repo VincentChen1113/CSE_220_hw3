@@ -9,7 +9,7 @@
 
 typedef struct Pixel
 {
-    int r, g, b;
+    unsigned char r, g, b;
 } Pixel;
 
 
