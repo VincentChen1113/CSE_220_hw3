@@ -1,5 +1,6 @@
 #include "image.h"
 #include <stdlib.h>
+#include <string.h>
 
 Image *load_image(char *filename) {    
     FILE *file = fopen(filename, "r");
@@ -12,19 +13,32 @@ Image *load_image(char *filename) {
     Image *image = malloc(sizeof(Image)); 
     if (image == NULL) {
         fclose(file);
+        free(image);
         return NULL; 
     }
 
     char* header = malloc(10 * sizeof(char));
-    fscanf(file, "%s", header);//read header and ignore it
+    fscanf(file, "%s\n", header);//read header and ignore it
+    if(strcmp(header, "P3") != 0){
+        free(header);
+        return NULL;
+    }
     free(header);
-    fscanf(file, "%d %d", &image->width, &image->height);
-    fscanf(file, "%d", &image->max_Intensity);
+        
+    
+    char* lines = malloc(256 * sizeof(char));
+    fgets(lines, 256, file);
+    if(lines[0] == '#'){
+        bzero(lines, 256);
+        fgets(lines, 256, file);// skip comment
+    }
+    sscanf(lines, "%d %d\n", &image->width, &image->height);
+    free(lines);
+    fscanf(file, "%d\n", &image->max_Intensity);
     
     //allocate the space for pixels
     image->image_data = malloc(image->height * sizeof(Pixel *));
     if (image->image_data == NULL) {
-        free(image);
         fclose(file);
         return NULL; 
     }
@@ -46,7 +60,7 @@ Image *load_image(char *filename) {
      for (int i = 0; i < image->height; i++) {
         for (int j = 0; j < image->width; j++) {
             int red, green, blue;
-            fscanf(file, "%d %d %d", &red, &green, &blue);
+            fscanf(file, "%d %d %d\n", &red, &green, &blue);
             image->image_data[i][j].r = red;
             image->image_data[i][j].g = green;
             image->image_data[i][j].b = blue;
@@ -59,6 +73,8 @@ Image *load_image(char *filename) {
 }
 
 void delete_image(Image *image) {
+    if (image == NULL) 
+        return;
     for(int i = 0; i < image->height; i++){
         free(image->image_data[i]);
     }
@@ -67,16 +83,16 @@ void delete_image(Image *image) {
 }
 
 unsigned short get_image_width(Image *image) {
-    return (short)image->width;
+    return image->width;
 }
 
 unsigned short get_image_height(Image *image) {
-    return (short)image->height;
+    return image->height;
 }
 
 unsigned char get_image_intensity(Image *image, unsigned int row, unsigned int col) {
     int pixel_intensity = image->image_data[row][col].r + image->image_data[row][col].b + image->image_data[row][col].g;
-    return (char) pixel_intensity;
+    return pixel_intensity;
 }
 
 unsigned int hide_message(char *message, char *input_filename, char *output_filename) {
