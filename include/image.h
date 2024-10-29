@@ -7,8 +7,16 @@
 #define INFO(...) do {fprintf(stderr, "[          ] [ INFO ] "); fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); fflush(stderr);} while(0)
 #define ERROR(...) do {fprintf(stderr, "[          ] [ ERR  ] "); fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); fflush(stderr);} while(0) 
 
+typedef struct Pixel
+{
+    int r, g, b;
+} Pixel;
+
+
 typedef struct Image {
-    char placeholder[1];  // This is a placeholder. You should not use this struct.
+    int height, width, max_Intensity;
+    Pixel **image_data;
+    //char placeholder[1];  // This is a placeholder. You should not use this struct.
 } Image;
 
 Image *load_image(char *filename);
