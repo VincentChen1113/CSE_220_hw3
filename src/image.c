@@ -61,9 +61,9 @@ Image *load_image(char *filename) {
         for (int j = 0; j < image->width; j++) {
             int red, green, blue;
             fscanf(file, "%d %d %d\n", &red, &green, &blue);
-            image->image_data[j][i].r = (unsigned char) red;
-            image->image_data[j][i].g = (unsigned char) green;
-            image->image_data[j][i].b = (unsigned char) blue;
+            image->image_data[i][j].r = (unsigned char) red;
+            image->image_data[i][j].g = (unsigned char) green;
+            image->image_data[i][j].b = (unsigned char) blue;
             /*if(i==0)
                 printf("r: %d g: %d b: %d\n", image->image_data[i][j].r, image->image_data[i][j].g ,image->image_data[i][j].b);*/
         }
@@ -94,7 +94,7 @@ unsigned short get_image_height(Image *image) {
 }
 
 unsigned char get_image_intensity(Image *image, unsigned int row, unsigned int col) {
-    int pixel_intensity = image->image_data[row][col].r + image->image_data[row][col].b + image->image_data[row][col].g;
+    int pixel_intensity = image->image_data[row][col].r;
     return pixel_intensity;
 }
 
