@@ -61,9 +61,9 @@ Image *load_image(char *filename) {
         for (int j = 0; j < image->width; j++) {
             int red, green, blue;
             fscanf(file, "%d %d %d\n", &red, &green, &blue);
-            image->image_data[i][j].r = (unsigned char) red;
-            image->image_data[i][j].g = (unsigned char) green;
-            image->image_data[i][j].b = (unsigned char) blue;
+            image->image_data[j][i].r = (unsigned char) red;
+            image->image_data[j][i].g = (unsigned char) green;
+            image->image_data[j][i].b = (unsigned char) blue;
             /*if(i==0)
                 printf("r: %d g: %d b: %d\n", image->image_data[i][j].r, image->image_data[i][j].g ,image->image_data[i][j].b);*/
         }
@@ -79,6 +79,7 @@ void delete_image(Image *image) {
         return;
     for(int i = 0; i < image->height; i++){
         free(image->image_data[i]);
+        image->image_data[i] = NULL;
     }
     free(image->image_data);
     free(image);
