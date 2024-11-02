@@ -22,6 +22,8 @@ QTNode *get_child2(QTNode *node);
 QTNode *get_child3(QTNode *node);
 QTNode *get_child4(QTNode *node);
 unsigned char get_node_intensity(QTNode *node);
+double get_average_intensity(Image *image, QTNode *node);
+double get_RMSE(Image *image, QTNode *node);
 void delete_quadtree(QTNode *root);
 int average_intensity(Image *image, QTNode *node);
 void save_qtree_as_ppm(QTNode *root, char *filename); 

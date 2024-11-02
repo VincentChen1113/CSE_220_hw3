@@ -132,8 +132,8 @@ double get_average_intensity(Image *image, QTNode *node){
     starting_col = node->starting_col;
     region_width = node->width;
 
-    for(int i = starting_row; i < region_height; i++){
-        for(int j = starting_col; j < region_width; j++){
+    for(unsigned int i = starting_row; i < region_height; i++){
+        for(unsigned int j = starting_col; j < region_width; j++){
             average_intensity += get_image_intensity(image, i, j);
             counter++;
         }
@@ -155,8 +155,8 @@ double get_RMSE(Image *image, QTNode *node){
     starting_col = node->starting_col;
     region_width = node->width;
 
-    for(int i = starting_row; i < region_height; i++){
-        for(int j = starting_col; j < region_width; j++){
+    for(unsigned int i = starting_row; i < region_height; i++){
+        for(unsigned int j = starting_col; j < region_width; j++){
             RMSE += pow((get_image_intensity(image, i, j) - average_intensity), 2);
             counter++;
         }
