@@ -16,7 +16,6 @@ typedef struct Pixel
 typedef struct Image {
     int height, width, max_Intensity;
     Pixel **image_data;
-    //char placeholder[1];  // This is a placeholder. You should not use this struct.
 } Image;
 
 Image *load_image(char *filename);

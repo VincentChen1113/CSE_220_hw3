@@ -27,6 +27,9 @@ Image *load_image(char *filename) {
         
     
     char* lines = malloc(256 * sizeof(char));
+    if(lines == NULL){
+        return NULL;
+    }
     fgets(lines, 256, file);
     if(lines[0] == '#'){
         bzero(lines, 256);
