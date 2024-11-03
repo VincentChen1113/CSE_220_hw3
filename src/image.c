@@ -352,9 +352,9 @@ void reserve_img_to_img(Image *img, Image *sec_image)
 		{
 			unsigned char img_pix=0;
 			img_pix= resv_chr_from_img(img);
-			sec_image->image_data[i][j].r=img_pix;
-			sec_image->image_data[i][j].g=img_pix;
-			sec_image->image_data[i][j].b=img_pix;
+			sec_image->image_data[i][j].r = img_pix;
+			sec_image->image_data[i][j].g = img_pix;
+			sec_image->image_data[i][j].b = img_pix;
 		}
 	}
 
