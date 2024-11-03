@@ -114,8 +114,12 @@ unsigned int hide_message(char *message, char *input_filename, char *output_file
 
     int row = 0, col = 0;
 
-    for(int i = 0; i < length; i++){
-        write_hide_message(message[i], image, row, col);
+    for(int i = 0; i < length + 1; i++){
+        if(i == length){
+            write_hide_message(0, image, row, col);
+        }else{
+            write_hide_message(message[i], image, row, col);
+        }
         write_counter++;
         col += 8;
         if(col >= image->width){
@@ -126,9 +130,7 @@ unsigned int hide_message(char *message, char *input_filename, char *output_file
             }
         }
     }
-    if(!(col + 8 >= image->width && row + 1 >= image->height)){
-        write_hide_message(0, image, row, col);
-    }
+    
     
     ppm_write(image, output);
     delete_image(image);
