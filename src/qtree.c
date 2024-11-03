@@ -290,7 +290,7 @@ QTNode *load_preorder_qt_helper(FILE *file){
     int average_intensity;
     int starting_row, height, starting_col, width;
 
-    fscanf(file, "%c %d %d %d %d %d",&node_type, &average_intensity, &starting_row, &height, &starting_col, &width);
+    fscanf(file, "%c %d %d %d %d %d\n",&node_type, &average_intensity, &starting_row, &height, &starting_col, &width);
 
     QTNode *node = malloc(sizeof(QTNode));
     if(node == NULL){
@@ -341,7 +341,7 @@ void save_preorder_qt(QTNode *root, char *filename) {
     FILE *file = fopen(filename, "w");
 
     write_tree(root, file);
-    
+
     fclose(file);
 }
 
