@@ -151,6 +151,8 @@ void write_hide_message(char character, Image *image, int row, int col){
         image->image_data[x][y].g =intensity;
         image->image_data[x][y].b = intensity;
 
+
+
         y++;
         if(y >= image->width){
             x++;
