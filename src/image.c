@@ -126,9 +126,10 @@ unsigned int hide_message(char *message, char *input_filename, char *output_file
             }
         }
     }
-
-    write_hide_message(0, image, row, col);
-
+    if(!(col + 8 >= image->width && row + 1 >= image->height)){
+        write_hide_message(0, image, row, col);
+    }
+    
     ppm_write(image, output);
     delete_image(image);
     fclose(output);
