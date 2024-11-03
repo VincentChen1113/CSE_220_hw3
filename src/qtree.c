@@ -6,34 +6,9 @@
 
 QTNode *create_quadtree(Image *image, double max_rmse) {
     
-    QTNode *root = (QTNode *)malloc(sizeof(QTNode));
-    if (root == NULL) {
-        return NULL;
-    }
+    QTNode *root;
 
-    root->node_type = 'L';
-    root->starting_row = 0;
-    root->height = image->height;
-    root->starting_col = 0;
-    root->width = image->width;
-    root->average_intensity = get_average_intensity(image, root);
-    root->child1 = NULL;
-    root->child2 = NULL;
-    root->child3 = NULL;
-    root->child4 = NULL;
-
-    double RMSE = get_RMSE(image, root);
-
-    if(RMSE > max_rmse){
-        root->node_type = 'N';
-        root->child1 = create_quadtree_helper(image, max_rmse, 0, root->height/2, 0, root->width/2);
-        root->child2 = create_quadtree_helper(image, max_rmse, 0, root->height/2, root->starting_col + root->width/2, (root->width - root->width/2));
-        root->child3 = create_quadtree_helper(image, max_rmse, root->starting_row + root->height/2, (root->height - root->height/2), 0, root->width/2);
-        root->child4 = create_quadtree_helper(image, max_rmse, root->starting_row + root->height/2, (root->height - root->height/2), root->starting_col + root->width/2, (root->width - root->width/2));
-    }
-    else if(RMSE < max_rmse || RMSE == max_rmse){
-        return root;
-    }
+    root = create_quadtree_helper(image, max_rmse, 0, image->height, 0, image->width); 
 
     return root;
 }
