@@ -8,7 +8,6 @@ QTNode *create_quadtree(Image *image, double max_rmse) {
     
     QTNode *root;
 
-
     root = create_quadtree_helper(image, max_rmse, 0, image->height, 0, image->width); 
 
     return root;
@@ -197,7 +196,7 @@ void tree_traversal(QTNode *root, Image *image){
 
 void ppm_write(Image *image, FILE *file){
     fprintf(file, "P3\n");
-    fprintf(file, "%d %d\n", image->height, image->width);
+    fprintf(file, "%d %d\n", image->width, image->height);
     fprintf(file, "255\n");
     for(int i = 0; i < image->height; i++){
         for(int j = 0; j < image->width; j++){
