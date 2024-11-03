@@ -25,7 +25,9 @@ unsigned short get_image_width(Image *image);
 unsigned short get_image_height(Image *image);
 
 unsigned int hide_message(char *message, char *input_filename, char *output_filename);
+void write_hide_message(char character, Image *image, int row, int col);
 char *reveal_message(char *input_filename);
+char reveal_message_helper(Image *image, int row, int col);
 unsigned int hide_image(char *secret_image_filename, char *input_filename, char *output_filename);
 void reveal_image(char *input_filename, char *output_filename);
 

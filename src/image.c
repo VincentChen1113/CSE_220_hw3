@@ -1,4 +1,5 @@
 #include "image.h"
+#include "qtree.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -102,16 +103,122 @@ unsigned char get_image_intensity(Image *image, unsigned int row, unsigned int c
 }
 
 unsigned int hide_message(char *message, char *input_filename, char *output_filename) {
-    (void)message;
-    (void)input_filename;
-    (void)output_filename;
-    return 0;
+    
+    FILE *output = fopen(output_filename, "w");
+
+    Image *image = load_image(input_filename);
+
+
+    int length = strlen(message);
+    unsigned int write_counter = 0;
+
+    int row = 0, col = 0;
+
+    for(int i = 0; i < length + 1; i++){
+        write_hide_message(message[i], image, row, col);
+        write_counter++;
+        col += 8;
+        if(col >= image->width){
+            row++; 
+            col -= image->width;
+            if(row >= image->height){
+               break;
+            }
+        }
+    }
+
+    ppm_write(image, output);
+    delete_image(image);
+    fclose(output);
+
+    return write_counter;
+}
+
+void write_hide_message(char character, Image *image, int row, int col){
+    
+    unsigned char intensity = 0;
+    int x = row, y = col;
+    unsigned char mask = 0x80;
+    
+    for(int i = 0; i < 8; i++){
+        intensity = image->image_data[x][y].r;
+        intensity &= 0xFE;
+        intensity |= (character & (mask >> i)) >> (7 - i);
+
+        image->image_data[x][y].r = intensity;
+        image->image_data[x][y].g =intensity;
+        image->image_data[x][y].b = intensity;
+
+        y++;
+        if(y >= image->width){
+            x++;
+            y = 0;
+            if(x >= image->height){
+                return;
+            }
+        }
+    }
+
 }
 
 char *reveal_message(char *input_filename) {
-    (void)input_filename;
-    return NULL;
+
+    Image *image = load_image(input_filename);
+    
+    char *message = malloc(1024 * 256 * sizeof(char));
+    if( message == NULL){
+        return NULL;
+    }
+
+    int length = (image->height * image->width);
+
+    int row = 0, col = 0;
+
+    for(int i = 0; i < length; i++){
+        char charater = reveal_message_helper(image, row, col);
+
+        message[i] = charater;
+        col += 8;
+
+        if(charater == 0){
+            break;
+        }
+
+        if(col >= image->width){
+            col -= image->width;
+            row++;
+            if(row >= image->height){
+                break;
+            }
+        }
+    }
+    
+
+    return message;
 }
+
+char reveal_message_helper(Image *image, int row, int col){
+    
+    int mask = 0x01;
+    char message = 0;
+    unsigned char intensity;
+    int x = row, y = col;
+    for(int i = 0; i < 8; i++){
+        intensity = image->image_data[x][y].r;
+        message |= (intensity & mask) << (7-i);
+        y++;
+        if(y >= image->width){
+            y = 0;
+            x++;
+            if(x >= image->height){
+                break;
+            }
+        }
+    }
+
+    return message;
+}
+
 
 unsigned int hide_image(char *secret_image_filename, char *input_filename, char *output_filename) {
     (void)secret_image_filename;
