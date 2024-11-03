@@ -199,7 +199,6 @@ char *reveal_message(char *input_filename) {
             }
         }
     }
-    
 
     return message;
 }
