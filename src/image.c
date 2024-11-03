@@ -111,12 +111,14 @@ unsigned int hide_message(char *message, char *input_filename, char *output_file
 
     int length = strlen(message);
     unsigned int write_counter = 0;
+    int end_length = (image->height * image->width) / 8;
 
     int row = 0, col = 0;
 
     for(int i = 0; i < length; i++){
-        if(i == length - 1){
+        if(i == end_length - 1){
             write_hide_message(0, image, row, col);
+            break;
         }else{
             write_hide_message(message[i], image, row, col);
         }
@@ -226,7 +228,6 @@ char reveal_message_helper(Image *image, int row, int col){
 }
 
 int x=0,y=0;
-int start=0;
 
 int fill_img_msg(Image *image, unsigned char msg)
 {
@@ -235,21 +236,13 @@ int fill_img_msg(Image *image, unsigned char msg)
   for (j=0;j<8;j++)
   {
 
-	  	if (start==1)
-		{
-			printf("org: %d enc=%x\n",image->image_data[x][y].r,enc);
-		}
                    image->image_data[x][y].r=(image->image_data[x][y].r & 0xfe) | ((enc&0x80)>>7);
                    image->image_data[x][y].g=(image->image_data[x][y].g & 0xfe) | ((enc&0x80)>>7);
                    image->image_data[x][y].b=(image->image_data[x][y].b & 0xfe)  | ((enc&0x80)>>7);
 
-	  	if (start==1)
-		{
-			printf("new: %d enc=%x\n",image->image_data[x][y].r,enc);
-					}
                    enc = enc << 1;
                    y++;
-                   if (y>=image->width)
+                   if (y >= image->width)
                    {
                         y=0;
                         x++;
@@ -311,21 +304,20 @@ unsigned int hide_image(char *secret_image_filename, char *input_filename, char 
 }
 
 unsigned char resv_chr_from_img(Image *img) {
-        unsigned char msg=0;
-        int i=0;
-        //int x=0,y=0;
-                msg=0;
-                for (i=0;i<8;i++)
+        unsigned char msg = 0;
+        int i = 0;
+                msg = 0;
+                for (i = 0;i < 8;i++)
                 {
                         msg = msg | (img->image_data[x][y].r & 0x1);
                         if (i!=7)
                         msg = msg <<1;
                         y++;
-                        if (y>=img->width)
+                        if (y >= img->width)
                         {
                                 x++;
-                                y=0;
-                                if (x>=img->height)
+                                y = 0;
+                                if (x >= img->height)
                                         break;
                         }
                 }
@@ -340,13 +332,13 @@ void reserve_img_to_img(Image *img, Image *sec_image)
 	unsigned char width,height;
 	width = resv_chr_from_img(img);
 	height = resv_chr_from_img(img);
-	sec_image->image_data=malloc(sizeof(Pixel *) * height);
-	sec_image->max_Intensity=255;
-	sec_image->width=width;
-	sec_image->height=height;
-	for (int i=0;i<height;i++)
-		sec_image->image_data[i]=malloc(sizeof(Pixel)*width);
-	for (int i=0;i<height;i++)
+	sec_image->image_data = malloc(sizeof(Pixel *) * height);
+	sec_image->max_Intensity = 255;
+	sec_image->width = width;
+	sec_image->height = height;
+	for (int i = 0;i < height;i++)
+		sec_image->image_data[i] = malloc(sizeof(Pixel) * width);
+	for (int i = 0;i < height;i++)
 	{
 		for (int j=0; j<width; j++)
 		{
@@ -371,6 +363,9 @@ void reveal_image(char *input_filename, char *output_filename) {
    reserve_img_to_img(image, sec_image);
    ppm_write(sec_image, fp);
    fclose(fp);
+
+   delete_image(image);
+   delete_image(sec_image);
 
 }
 
