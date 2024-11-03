@@ -114,7 +114,7 @@ unsigned int hide_message(char *message, char *input_filename, char *output_file
 
     int row = 0, col = 0;
 
-    for(int i = 0; i < length + 1; i++){
+    for(int i = 0; i < length; i++){
         write_hide_message(message[i], image, row, col);
         write_counter++;
         col += 8;
