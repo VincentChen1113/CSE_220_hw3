@@ -11,7 +11,7 @@
 
 typedef struct QTNode {
     char node_type;
-    int average_intensity;
+    unsigned char average_intensity;
     int starting_row, height, starting_col, width;
     struct QTNode *child1, *child2, *child3, *child4;   
 } QTNode;
@@ -32,9 +32,12 @@ unsigned char get_node_intensity(QTNode *node);
 double get_average_intensity(Image *image, QTNode *node);
 double get_RMSE(Image *image, QTNode *node);
 void delete_quadtree(QTNode *root);
-int average_intensity(Image *image, QTNode *node);
 void save_qtree_as_ppm(QTNode *root, char *filename); 
+
 QTNode *load_preorder_qt(char *filename);
+QTNode *load_preorder_qt_helper(FILE *file);
+
 void save_preorder_qt(QTNode *root, char *filename);  
+void write_tree(QTNode *node, FILE *file);
 
 #endif // QTREE_H

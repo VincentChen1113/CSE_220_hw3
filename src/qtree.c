@@ -55,6 +55,10 @@ QTNode *create_quadtree_helper(Image *image, double max_rmse, int starting_row, 
     node->child3 = NULL;
     node->child4 = NULL;
 
+    if(node->height == 1 && node->width == 1){
+        return node;
+    }
+
     double RMSE = get_RMSE(image, node);
 
     if(RMSE > max_rmse){
@@ -169,11 +173,17 @@ double get_RMSE(Image *image, QTNode *node){
     return RMSE;
 }
 
+int line = 0;
+
 void print_QTree(QTNode *root){
     if(root == NULL){
         return;
     }
-    printf("%c %d %d %d %d %d\n", root->node_type, root->average_intensity, root->starting_row, root->height, root->starting_col, root->width);
+    printf("%d, %c %d %d %d %d %d\n", line, root->node_type, root->average_intensity, root->starting_row, root->height, root->starting_col, root->width);
+    line++;
+    /*if(line % 256 == 255){
+        printf("\n");
+    }*/
     print_QTree(root->child1);
     print_QTree(root->child2);
     print_QTree(root->child3);
@@ -224,6 +234,9 @@ void ppm_write(Image *image, FILE *file){
 void save_qtree_as_ppm(QTNode *root, char *filename) {
 
     Image *image = malloc(sizeof(Image));
+    if(image == NULL){
+        return;
+    }
     image->height = root->height;
     image->width = root->width;
 
@@ -256,13 +269,92 @@ void save_qtree_as_ppm(QTNode *root, char *filename) {
 
 }
 
+
+
 QTNode *load_preorder_qt(char *filename) {
-    (void)filename;
-    return NULL;
+    FILE *file = fopen(filename, "r");
+    
+    if(file == NULL){
+        return NULL;
+    }
+
+    QTNode *root = NULL;
+    root = load_preorder_qt_helper(file);
+
+    fclose(file);
+    return root;
+}
+
+QTNode *load_preorder_qt_helper(FILE *file){
+    char node_type;
+    int average_intensity;
+    int starting_row, height, starting_col, width;
+
+    fscanf(file, "%c %d %d %d %d %d",&node_type, &average_intensity, &starting_row, &height, &starting_col, &width);
+
+    QTNode *node = malloc(sizeof(QTNode));
+    if(node == NULL){
+        return NULL;
+    }
+
+    node->node_type = node_type;
+    node->average_intensity = average_intensity;
+    node->starting_row = starting_row;
+    node->height = height;
+    node->starting_col = starting_col; 
+    node->width = width;
+
+    if(node->node_type == 'L'){
+        node->child1 = NULL;
+        node->child2 = NULL;
+        node->child3 = NULL;
+        node->child4 = NULL;
+        return node;
+    }
+    else{
+        if(node->height == 1){
+            node->child1 = load_preorder_qt_helper(file);
+            node->child2 = load_preorder_qt_helper(file);
+            node->child3 = NULL;
+            node->child4 = NULL;
+
+            return node;
+        }
+        else if(node->width == 1){
+            node->child1 = load_preorder_qt_helper(file);
+            node->child2 = NULL;
+            node->child3 = load_preorder_qt_helper(file);
+            node->child4 = NULL;
+
+            return node;
+        }
+        node->child1 = load_preorder_qt_helper(file);
+        node->child2 = load_preorder_qt_helper(file);
+        node->child3 = load_preorder_qt_helper(file);
+        node->child4 = load_preorder_qt_helper(file);
+    }
+    
+    return node;
 }
 
 void save_preorder_qt(QTNode *root, char *filename) {
-    (void)root;
-    (void)filename;
+    FILE *file = fopen(filename, "w");
+
+    write_tree(root, file);
+    
+    fclose(file);
+}
+
+void write_tree(QTNode *node, FILE *file){
+    if(node == NULL){
+        return;
+    }
+    fprintf(file, "%c %d %d %d %d %d\n", node->node_type, node->average_intensity, node->starting_row, node->height, node->starting_col, node->width);
+    
+    write_tree(node->child1, file);
+    write_tree(node->child2, file);
+    write_tree(node->child3, file);
+    write_tree(node->child4, file);
+
 }
 
