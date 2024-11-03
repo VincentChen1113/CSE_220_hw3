@@ -8,6 +8,7 @@ QTNode *create_quadtree(Image *image, double max_rmse) {
     
     QTNode *root;
 
+
     root = create_quadtree_helper(image, max_rmse, 0, image->height, 0, image->width); 
 
     return root;
