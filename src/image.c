@@ -226,15 +226,148 @@ char reveal_message_helper(Image *image, int row, int col){
     return message;
 }
 
+int x=0,y=0;
+int start=0;
+
+void fill_img_msg(Image *image, unsigned char msg)
+{
+	unsigned char enc = msg;
+	int j=0;
+  for (j=0;j<8;j++)
+  {
+
+	  	if (start==1)
+		{
+			printf("org: %d enc=%x\n",image->image_data[x][y].r,enc);
+		}
+                   image->image_data[x][y].r=(image->image_data[x][y].r & 0xfe) | ((enc&0x80)>>7);
+                   image->image_data[x][y].g=(image->image_data[x][y].g & 0xfe) | ((enc&0x80)>>7);
+                   image->image_data[x][y].b=(image->image_data[x][y].b & 0xfe)  | ((enc&0x80)>>7);
+
+	  	if (start==1)
+		{
+			printf("new: %d enc=%x\n",image->image_data[x][y].r,enc);
+					}
+                   enc = enc << 1;
+                   y++;
+                   if (y>=image->width)
+                   {
+                        y=0;
+                        x++;
+                        if (x>=image->height)
+                                return ;
+                        }
+  }
+
+}
+
+void hide_img_in_Image( Image *sec_image, Image *image)
+{
+
+   int i=0,j=0;
+   unsigned char width=0, height=0;   
+
+   x=0,y=0;
+   width=sec_image->width;
+   height = sec_image->height;
+
+
+   start=0;
+   fill_img_msg(image, width);
+   fill_img_msg(image, height);
+   start=0;
+
+   for (i=0;i<sec_image->height;i++)
+   {
+	   for (j=0;j<sec_image->width; j++)
+	   {
+           	unsigned char enc = sec_image->image_data[i][j].r;
+	   	fill_img_msg(image,enc);
+	   }
+   }
+
+}
+
 
 unsigned int hide_image(char *secret_image_filename, char *input_filename, char *output_filename) {
-    (void)secret_image_filename;
-    (void)input_filename;
-    (void)output_filename;
-    return 10;
+   FILE *fp = fopen(output_filename, "w");
+   Image *image = load_image(input_filename);
+   Image *sec_img = load_image(secret_image_filename);
+
+   hide_img_in_Image(sec_img,image);
+
+   ppm_write(image,fp);
+   delete_image(image);
+   delete_image(sec_img);
+   fclose(fp);
+   return 0;
+
+}
+
+unsigned char resv_chr_from_img(Image *img) {
+        unsigned char msg=0;
+        int i=0;
+        //int x=0,y=0;
+                msg=0;
+                for (i=0;i<8;i++)
+                {
+                        msg = msg | (img->image_data[x][y].r & 0x1);
+                        if (i!=7)
+                        msg = msg <<1;
+                        y++;
+                        if (y>=img->width)
+                        {
+                                x++;
+                                y=0;
+                                if (x>=img->height)
+                                        break;
+                        }
+                }
+
+		return msg;
+}
+
+
+
+void reserve_img_to_img(Image *img, Image *sec_image)
+{
+	unsigned char width,height;
+	width = resv_chr_from_img(img);
+	height = resv_chr_from_img(img);
+	sec_image->image_data=malloc(sizeof(Pixel *) * height);
+	sec_image->max_Intensity=255;
+	sec_image->width=width;
+	sec_image->height=height;
+	for (int i=0;i<height;i++)
+		sec_image->image_data[i]=malloc(sizeof(Pixel)*width);
+	for (int i=0;i<height;i++)
+	{
+		for (int j=0; j<width; j++)
+		{
+			unsigned char img_pix=0;
+			img_pix= resv_chr_from_img(img);
+			sec_image->image_data[i][j].r=img_pix;
+			sec_image->image_data[i][j].g=img_pix;
+			sec_image->image_data[i][j].b=img_pix;
+		}
+	}
+
 }
 
 void reveal_image(char *input_filename, char *output_filename) {
-    (void)input_filename;
-    (void)output_filename;
+   Image *image = load_image(input_filename);
+   FILE *fp = fopen(output_filename, "w");
+   x=0;
+   y=0;
+   Image *sec_image = malloc(sizeof(Image));
+   if (image==NULL)
+	   printf("file open fail!\n");
+   reserve_img_to_img(image, sec_image);
+   ppm_write(sec_image, fp);
+   fclose(fp);
+
 }
+
+
+
+

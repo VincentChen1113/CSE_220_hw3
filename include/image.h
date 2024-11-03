@@ -30,5 +30,8 @@ char *reveal_message(char *input_filename);
 char reveal_message_helper(Image *image, int row, int col);
 unsigned int hide_image(char *secret_image_filename, char *input_filename, char *output_filename);
 void reveal_image(char *input_filename, char *output_filename);
-
+void fill_img_msg(Image *image, unsigned char msg);
+void hide_img_in_Image( Image *sec_image, Image *image);
+unsigned char resv_chr_from_img(Image *img);
+void reserve_img_to_img(Image *img, Image *sec_image);
 #endif // __IMAGE_H
