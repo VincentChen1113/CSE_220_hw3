@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 QTNode *create_quadtree(Image *image, double max_rmse) {
     
@@ -126,20 +127,21 @@ double get_average_intensity(Image *image, QTNode *node){
     double average_intensity = 0;
     unsigned int starting_row, region_height, starting_col, region_width;
 
-    int counter = 0;
+    //int counter = 0;
     starting_row = node->starting_row;
     region_height = node->height;
     starting_col = node->starting_col;
     region_width = node->width;
+    double n = region_height * region_width;
 
-    for(unsigned int i = starting_row; i < region_height; i++){
-        for(unsigned int j = starting_col; j < region_width; j++){
+    for(unsigned int i = starting_row; i < (starting_row + region_height); i++){
+        for(unsigned int j = starting_col; j < (starting_col + region_width); j++){
             average_intensity += get_image_intensity(image, i, j);
-            counter++;
+            //counter++;
         }
     }
 
-    average_intensity = average_intensity / counter;
+    average_intensity = average_intensity / n;
 
     return average_intensity;
 }
@@ -149,14 +151,14 @@ double get_RMSE(Image *image, QTNode *node){
     double average_intensity = node->average_intensity;
     unsigned int starting_row, region_height, starting_col, region_width;
     
-    int counter = 0;
+    double counter = 0;
     starting_row = node->starting_row;
     region_height = node->height;
     starting_col = node->starting_col;
     region_width = node->width;
 
-    for(unsigned int i = starting_row; i < region_height; i++){
-        for(unsigned int j = starting_col; j < region_width; j++){
+    for(unsigned int i = starting_row; i < (starting_row + region_height); i++){
+        for(unsigned int j = starting_col; j < (starting_col + region_width); j++){
             RMSE += pow((get_image_intensity(image, i, j) - average_intensity), 2);
             counter++;
         }
@@ -167,9 +169,91 @@ double get_RMSE(Image *image, QTNode *node){
     return RMSE;
 }
 
+void print_QTree(QTNode *root){
+    if(root == NULL){
+        return;
+    }
+    printf("%c %d %d %d %d %d\n", root->node_type, root->average_intensity, root->starting_row, root->height, root->starting_col, root->width);
+    print_QTree(root->child1);
+    print_QTree(root->child2);
+    print_QTree(root->child3);
+    print_QTree(root->child4);
+
+}
+
+void fill_image(Image *image, QTNode *node){
+    unsigned char intensity = node->average_intensity;
+    for(int i = node->starting_row; i < (node->starting_row + node->height); i++){
+        for(int j = node->starting_col; j < (node->starting_col + node->width); j++){
+            image->image_data[i][j].r = intensity;
+            image->image_data[i][j].g = intensity;
+            image->image_data[i][j].b = intensity;
+        }
+    }
+
+}
+
+void tree_traversal(QTNode *root, Image *image){
+    if(root == NULL){
+        return;
+    }
+    if(root->node_type == 'L'){
+        fill_image(image, root);
+    }
+    else{
+        tree_traversal(root->child1, image);
+        tree_traversal(root->child2, image);
+        tree_traversal(root->child3, image);
+        tree_traversal(root->child4, image);
+    }
+
+}
+
+void ppm_write(Image *image, FILE *file){
+    fprintf(file, "P3\n");
+    fprintf(file, "%d %d\n", image->height, image->width);
+    fprintf(file, "255\n");
+    for(int i = 0; i < image->height; i++){
+        for(int j = 0; j < image->width; j++){
+            fprintf(file, "%d %d %d ", image->image_data[i][j].r, image->image_data[i][j].g, image->image_data[i][j].b);
+        }
+    }
+
+}
+
 void save_qtree_as_ppm(QTNode *root, char *filename) {
-    (void)root;
-    (void)filename;
+
+    Image *image = malloc(sizeof(Image));
+    image->height = root->height;
+    image->width = root->width;
+
+    image->image_data = malloc(image->height * sizeof(Pixel *));
+    if (image->image_data == NULL) {
+        return; 
+    }
+
+    for(int i = 0; i < image->height; i++){
+        image->image_data[i] = malloc(image->width * sizeof(Pixel));
+        bzero(image->image_data[i], image->width * sizeof(Pixel));
+        if (image->image_data[i] == NULL) {
+            for (int j = 0; j < i; j++) {
+                free(image->image_data[j]);
+            }
+            free(image->image_data);
+            free(image);
+            return; 
+        }
+    }
+
+    tree_traversal(root, image);
+    
+    FILE *file = fopen(filename, "w");
+
+    ppm_write(image, file);
+    fclose(file);
+    
+    delete_image(image);
+
 }
 
 QTNode *load_preorder_qt(char *filename) {

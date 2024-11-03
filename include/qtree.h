@@ -11,9 +11,16 @@
 
 typedef struct QTNode {
     char node_type;
-    int average_intensity, starting_row, height, starting_col, width;
+    int average_intensity;
+    int starting_row, height, starting_col, width;
     struct QTNode *child1, *child2, *child3, *child4;   
 } QTNode;
+
+void print_QTree(QTNode *root);
+void fill_image(Image *image, QTNode *node);
+void tree_traversal(QTNode *root, Image *image);
+void ppm_write(Image *image, FILE *file);
+void save_qtree_as_ppm(QTNode *root, char *filename);
 
 QTNode *create_quadtree(Image *image, double max_rmse);
 QTNode *create_quadtree_helper(Image *image, double max_rmse, int starting_row, int height, int starting_col, int width);  
