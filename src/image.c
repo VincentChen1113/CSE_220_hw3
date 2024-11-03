@@ -31,7 +31,7 @@ Image *load_image(char *filename) {
         return NULL;
     }
     fgets(lines, 256, file);
-    if(lines[0] == '#'){
+    while(lines[0] == '#'){
         bzero(lines, 256);
         fgets(lines, 256, file);// skip comment
     }
