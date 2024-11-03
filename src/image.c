@@ -115,14 +115,16 @@ unsigned int hide_message(char *message, char *input_filename, char *output_file
 
     int row = 0, col = 0;
 
-    for(int i = 0; i < length; i++){
+    for(int i = 0; i < length + 1; i++){
         if(i == end_length - 1){
             write_hide_message(0, image, row, col);
             break;
         }else{
             write_hide_message(message[i], image, row, col);
         }
-        write_counter++;
+        if(i != length){
+            write_counter++;
+        }
         col += 8;
         if(col >= image->width){
             row++; 
