@@ -228,7 +228,7 @@ char reveal_message_helper(Image *image, int row, int col){
 int x=0,y=0;
 int start=0;
 
-void fill_img_msg(Image *image, unsigned char msg)
+int fill_img_msg(Image *image, unsigned char msg)
 {
 	unsigned char enc = msg;
 	int j=0;
@@ -254,37 +254,44 @@ void fill_img_msg(Image *image, unsigned char msg)
                         y=0;
                         x++;
                         if (x>=image->height)
-                                return ;
+                                return 0;
                         }
   }
+  return 1;
 
 }
 
-void hide_img_in_Image( Image *sec_image, Image *image)
+int hide_img_in_Image( Image *sec_image, Image *image)
 {
 
-   int i=0,j=0;
+   int i=0 ,j=0, ret = 0;
    unsigned char width=0, height=0;   
 
-   x=0,y=0;
-   width=sec_image->width;
+   x = 0,y = 0;
+   width = sec_image->width;
    height = sec_image->height;
-
-
-   start=0;
-   fill_img_msg(image, width);
-   fill_img_msg(image, height);
-   start=0;
-
-   for (i=0;i<sec_image->height;i++)
+   
+   ret = fill_img_msg(image, width);
+    if(ret == 0){
+        return ret;
+    }
+   ret = fill_img_msg(image, height);
+    if(ret == 0){
+        return ret;
+    }
+   for (i = 0;i <sec_image->height;i++)
    {
-	   for (j=0;j<sec_image->width; j++)
+	   for (j = 0;j<sec_image->width; j++)
 	   {
            	unsigned char enc = sec_image->image_data[i][j].r;
-	   	fill_img_msg(image,enc);
+	   	ret = fill_img_msg(image,enc);
+        if(ret == 0){
+        return ret;
+        }
 	   }
    }
 
+    return ret;
 }
 
 
@@ -293,13 +300,13 @@ unsigned int hide_image(char *secret_image_filename, char *input_filename, char 
    Image *image = load_image(input_filename);
    Image *sec_img = load_image(secret_image_filename);
 
-   hide_img_in_Image(sec_img,image);
+   int ret = hide_img_in_Image(sec_img,image);
 
    ppm_write(image,fp);
    delete_image(image);
    delete_image(sec_img);
    fclose(fp);
-   return 0;
+   return ret;
 
 }
 
